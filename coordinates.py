@@ -30,11 +30,11 @@ class Coordinates():
         elif response.status_code == 400:
             error_msg = info['error']
             new_error_msg = re.sub('for endpoint \'.*(,|$)', '', error_msg).rstrip()
-            raise BadRequestError(new_error_msg)
+            return new_error_msg
 
         else:
-            raise NetworkError('%d', response.status_code)
+            return NetworkError('%d', response.status_code)
 
 
-# newCoord = Coordinates(1234, 5, "hg38", "chrM") 
+newCoord = Coordinates(1234, 5678, "hg38", "chrM") 
 # print(newCoord.get_sequence())
