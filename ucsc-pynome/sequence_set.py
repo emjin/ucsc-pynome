@@ -1,4 +1,4 @@
-from coordinates import Coordinates
+from sequence import Sequence
 
 class MalformedBedFileError(Exception):
     pass

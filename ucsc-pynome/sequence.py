@@ -7,15 +7,21 @@ class NetworkError(Exception):
 class BadRequestError(Exception):
     pass
 
-class Coordinates():
+class Sequence():
     def __init__(self, start, end, genome, chromosome, label=None):
         self.start = start
         self.end = end
         self.genome = genome 
         self.chromosome = chromosome
         self.label = label
-    
-    def get_sequence(self):  
+        self.__sequence = None
+
+    def string(self):
+        if self.__sequence is None:
+            self.__sequence = self.__get_sequence()
+        return self.__sequence
+ 
+    def __get_sequence(self):  
         url = 'https://api.genome.ucsc.edu/getData/sequence?'
         url += 'genome=' + self.genome + ';'
         url += 'chrom=' + self.chromosome + ';'
@@ -35,6 +41,5 @@ class Coordinates():
         else:
             raise NetworkError('%d', response.status_code)
 
-
-# newCoord = Coordinates(1234, 5, "hg38", "chrM") 
-# print(newCoord.get_sequence())
+# newSeq = Sequence(1234, 5678, "hg38", "chrM") 
+# print(newSeq.string())
