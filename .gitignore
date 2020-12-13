@@ -1,3 +1,6 @@
 *.sw*
 *.err
 __pycache__
+*.chain
+*.gz
+unmapped.bed
