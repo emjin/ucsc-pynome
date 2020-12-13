@@ -1,6 +1,7 @@
 import requests
 import re
 
+
 class NetworkError(Exception):
     pass 
 
@@ -20,6 +21,18 @@ class Sequence():
         if self.__sequence is None:
             self.__sequence = self.__get_sequence()
         return self.__sequence
+
+    def __str__(self):
+        info = {
+            "start": self.start,
+            "end": self.end,
+            "genome": self.genome,
+            "chromosome": self.chromosome
+        }
+        if self.label is not None:
+            info["label"] = self.label
+        return str(info)
+        
  
     def __get_sequence(self):  
         url = 'https://api.genome.ucsc.edu/getData/sequence?'
@@ -42,4 +55,4 @@ class Sequence():
             raise NetworkError('%d', response.status_code)
 
 # newSeq = Sequence(1234, 5678, "hg38", "chrM") 
-# print(newSeq.string())
+# print(newSeq)
