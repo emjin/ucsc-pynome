@@ -9,7 +9,25 @@ class BadRequestError(Exception):
     pass
 
 class Sequence():
+    """Represents a DNA sequence of a chromosome in a UCSC database genome characterized by start and end coordinates.
+
+    Use methods here to get the string value of a certain sequence.
+    
+    Raises:
+        NetworkError:  raised if a connection issue occurs during the API request
+        BadRequestError: if a 400 status code is returned due to incorrect genome, chromosome or coordinates given. 
+                         Specifics will be printed out with the error
+    """ 
     def __init__(self, start, end, genome, chromosome, label=None):
+        """ Get an instance of a Sequence. Client should not use the constructor!
+
+        Args: 
+            start (int): start coordinate of the sequence
+            end (int): int coordinate of the sequence
+            genome (string): target genome
+            chromosome (string): target chromosome
+            label (string): optional string for the user to identify the Sequence by
+        """
         self.start = start
         self.end = end
         self.genome = genome 
@@ -18,11 +36,18 @@ class Sequence():
         self.__sequence = None
 
     def string(self):
+        """
+        Gets DNA sequence of the chromsome in a UCSC database genome
+
+        Returns: 
+            string: DNA sequence of the Sequence() object 
+        """
         if self.__sequence is None:
             self.__sequence = self.__get_sequence()
         return self.__sequence
 
     def __str__(self):
+        """ Returns the Sequence info """
         info = {
             "start": self.start,
             "end": self.end,
@@ -35,6 +60,16 @@ class Sequence():
         
  
     def __get_sequence(self):  
+        """ Helper method to retrieve the DNA sequence from the specified chromosome in UCSC database genome.
+        Clients should not use this method!
+
+        Raises:
+            BadRequestError
+            NetworkError
+
+        Calls endpoints:
+            - GET /getData/sequence?/genome={genome};chrom={chromosome};start={start};end={end}
+        """
         url = 'https://api.genome.ucsc.edu/getData/sequence?'
         url += 'genome=' + self.genome + ';'
         url += 'chrom=' + self.chromosome + ';'
@@ -54,5 +89,3 @@ class Sequence():
         else:
             raise NetworkError('%d', response.status_code)
 
-# newSeq = Sequence(1234, 5678, "hg38", "chrM") 
-# print(newSeq)
