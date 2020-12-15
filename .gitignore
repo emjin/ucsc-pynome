@@ -1,10 +1,10 @@
 *.sw*
 *.err
 __pycache__
-liftover_files/*.chain
+ucscpynome/liftover_files/*.chain
 *.gz
-unmapped.bed
-temp/*.bed
-temp/*.err
+*unmapped.bed
+ucscpynome/temp/*.bed
+ucscpynome/temp/*.err
 *.pyc
 *.html

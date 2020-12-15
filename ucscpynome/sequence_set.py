@@ -1,5 +1,5 @@
-from sequence import Sequence
-from genome import Genome
+from ucscpynome import Sequence
+from ucscpynome import Genome
 import sys
 import subprocess
 import requests
@@ -103,13 +103,14 @@ class SequenceSet():
         """TODO
 
         """
+        script_dir = os.path.dirname(__file__)
         src = str(self.genome)
         target = str(target_genome)
 
-        src_file = "temp/liftover_temp_file_" + src + '.bed'
+        src_file = os.path.join(script_dir, "temp/liftover_temp_file_" + src + '.bed')
         self.to_bed(src_file)
 
-        target_file = "temp/liftover_temp_file_" + target + '.bed'
+        target_file = os.path.join(script_dir, "temp/liftover_temp_file_" + target + '.bed')
 
         # call to Genome class' static utility method
         if chain:
@@ -151,8 +152,6 @@ def bad_chain_file():
     # should raise LiftoverError
     ss = SequenceSet("test_files/hg19_ex.bed", "hg19")
     lss = ss.liftover(Genome("hg38"), "test_files/bad_hg19_hg38.over.chain")
-
-hg19_to_hg38()
 
 # print(ss.coordinates[0].genome)
 # print(ss.coordinates[0].chromosome)

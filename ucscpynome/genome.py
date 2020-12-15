@@ -74,7 +74,7 @@ class Genome():
         for g,data in info['ucscGenomes'].items():
             instance = super().__new__(cls)
             instance.__chromosomes = []
-            instance.__genome = g 
+            instance.__genome = g
             Genome.__genome_dict[g] = instance
             org = data["organism"].lower()
             if org in Genome.__organism_dict:
@@ -189,7 +189,8 @@ class Genome():
     # just a wrapper around ucsc liftover that downloads chain files
     @staticmethod
     def liftover(src_genome, target_genome, src_file, target_file, unmapped_file = None, path_to_chain = None):
-        
+        script_dir = os.path.dirname(__file__)
+
         def check_liftover_success(liftover_log):
             liftover_file = open(liftover_log, 'r')
             valid_log_lines = ["Reading liftover chains", "Mapping coordinates"]
@@ -203,7 +204,7 @@ class Genome():
 
 
         def download_chain_file(chain_name, url, redownload):
-            path_to_chain = 'liftover_files/' + chain_name
+            path_to_chain = os.path.join(script_dir, 'liftover_files/' + chain_name)
             path_to_gz = path_to_chain + '.gz'
 
             if redownload or (not path.exists(path_to_chain) and not path.exists(path_to_gz)):
@@ -227,21 +228,22 @@ class Genome():
 
         # testing
         if not unmapped_file:
-            unmapped_file = src + "To" + target + "unmapped.bed"
+            unmapped_file = os.path.join(src + "To" + target + "unmapped.bed")
 
-        liftover_log = "liftover_files/log_files/" + src + "To" + target + "_liftover_log.err"
+        liftover_log = os.path.join(script_dir, "liftover_files/log_files/" + src + "To" + target + "_liftover_log.err")
 
         # download chain file if necessary
         chainprovided = True
         if not path_to_chain:
             chainprovided = False
-            chain_name = src + 'To' + target.capitalize() + '.over.chain'
+            capitalized_target = target[0].capitalize() + target[1:]
+            chain_name = src + 'To' + capitalized_target + '.over.chain'
             url = 'https://hgdownload.cse.ucsc.edu/goldenpath/' + src + '/liftOver/' + chain_name + '.gz'
             path_to_chain = download_chain_file(chain_name, url, redownload=False)
 
-        liftover_call = './liftOver ' + src_file + ' ' + path_to_chain + ' ' + target_file + ' ' + unmapped_file
+        liftover_call = 'liftOver ' + src_file + ' ' + path_to_chain + ' ' + target_file + ' ' + unmapped_file
         redirect = ' 2> ' + liftover_log
-        os.system(liftover_call + redirect)
+        os.system(os.path.join(script_dir, liftover_call) + redirect)
 
         # handle errors
         lift_err_msg = check_liftover_success(liftover_log)
