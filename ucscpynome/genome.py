@@ -1,3 +1,8 @@
+import sys
+import subprocess
+import os.path
+from os import path
+import gzip
 import requests
 
 class InvalidGenomeError(ValueError):
@@ -10,6 +15,9 @@ class InvalidChromosomeError(ValueError):
 
 class InvalidOrganismError(ValueError):
     """ InvalidOrganismError is raised when the user inputs an invalid organism """
+    pass
+
+class LiftoverError(ValueError):
     pass
 
 class Genome():
@@ -73,6 +81,9 @@ class Genome():
                 Genome.__organism_dict[org].append(g)
             else:
                 Genome.__organism_dict[org] = [g]
+
+    def __str__(self):
+        return self.__genome
 
     def __download_chrom_sequence(self, file_prefix, chromosome):
         """
@@ -173,5 +184,86 @@ class Genome():
                 return Genome.__organism_dict[organism.lower()]
             else:
                 raise InvalidOrganismError(organism + " is not a valid organism")
+
+    # static utility method to perform liftover
+    # just a wrapper around ucsc liftover that downloads chain files
+    @staticmethod
+    def liftover(src_genome, target_genome, src_file, target_file, unmapped_file = None, path_to_chain = None):
+        
+        def check_liftover_success(liftover_log):
+            liftover_file = open(liftover_log, 'r')
+            valid_log_lines = ["Reading liftover chains", "Mapping coordinates"]
+            lift_err_msg = ""
+            for line in liftover_file:
+                line = line.strip()
+                if line not in valid_log_lines:
+                    lift_err_msg += "liftover error: " + line + "\n"
+            liftover_file.close()
+            return lift_err_msg
+
+
+        def download_chain_file(chain_name, url, redownload):
+            path_to_chain = 'liftover_files/' + chain_name
+            path_to_gz = path_to_chain + '.gz'
+
+            if redownload or (not path.exists(path_to_chain) and not path.exists(path_to_gz)):
+                r = requests.get(url, allow_redirects=True)
+                if r.status_code != 200:
+                    raise LookupError("Chain file " + chain_name + " does not exist. There may not be a valid mapping between these genomes")
+
+                gzip.open(path_to_gz, 'wb').write(r.content)
+                # TODO: figure out how to close!
+            if redownload or (not path.exists(path_to_chain)):
+                content = gzip.open(path_to_gz, 'rb').read()
+                f = open(path_to_chain, 'wb')
+                chain_contents = gzip.decompress(content)
+                f.write(chain_contents)
+                f.close()
+
+            return path_to_chain
+
+        src = str(src_genome)
+        target = str(target_genome)
+
+        # testing
+        if not unmapped_file:
+            unmapped_file = src + "To" + target + "unmapped.bed"
+
+        liftover_log = "liftover_files/log_files/" + src + "To" + target + "_liftover_log.err"
+
+        # download chain file if necessary
+        chainprovided = True
+        if not path_to_chain:
+            chainprovided = False
+            chain_name = src + 'To' + target.capitalize() + '.over.chain'
+            url = 'https://hgdownload.cse.ucsc.edu/goldenpath/' + src + '/liftOver/' + chain_name + '.gz'
+            path_to_chain = download_chain_file(chain_name, url, redownload=False)
+
+        liftover_call = './liftOver ' + src_file + ' ' + path_to_chain + ' ' + target_file + ' ' + unmapped_file
+        redirect = ' 2> ' + liftover_log
+        os.system(liftover_call + redirect)
+
+        # handle errors
+        lift_err_msg = check_liftover_success(liftover_log)
+
+        liftover_error = False
+        if lift_err_msg:
+            if not chainprovided:
+                # retry upon failure
+                download_chain_file(chain_name, url, redownload=True)
+                os.system(liftover_call + redirect)
+                lift_err_msg = check_liftover_success(liftover_log)
+                if lift_err_msg: 
+                    lift_err_msg += "Error while lifting over from " + src + " to " + target + "\n"
+                    lift_err_msg += "The chain file downloaded from " + url + " may be invalid\n"
+                    lift_err_msg += "If the chain file is valid, please file an issue"
+                    liftover_error = True
+            else:
+                lift_err_msg += "Error while lifting over from " + src + " to " + target + "\n"
+                lift_err_msg += "The chain file " + path_to_chain + " may be invalid"
+                liftover_error = True
+                
+        if liftover_error:
+            raise LiftoverError(lift_err_msg)
 
 

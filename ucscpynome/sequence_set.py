@@ -1,4 +1,5 @@
 from sequence import Sequence
+from genome import Genome
 import sys
 import subprocess
 import requests
@@ -10,6 +11,10 @@ class MalformedBedFileError(Exception):
     pass
 
 class SequenceSet():
+    """TODO
+
+    """
+    
     MIN_NUM_COLS = 3
     CHROM_COL = 0
     START_COL = 1
@@ -51,6 +56,9 @@ class SequenceSet():
     
     # will overwrite existing file if bed_file_name already exists
     def to_bed(self, bed_file_name):
+        """TODO
+
+        """
         f = open(bed_file_name, "w")
         for coord in self.coordinates:
             f.write(coord.chromosome)
@@ -65,6 +73,9 @@ class SequenceSet():
         f.close()
 
     def to_fasta(self, fasta_file_name):
+        """TODO
+
+        """
         f = open(fasta_file_name, "w")
         for coord in self.coordinates:
             seq = coord.get_sequence() # TODO what to do if this fails?
@@ -76,41 +87,28 @@ class SequenceSet():
             f.write("\n")
         f.close()
     
-    def liftover(self, target_genome):
-        src = self.genome
-        target = target_genome
+    # Liftover functionality
+    def liftover(self, target_genome, chain = None):
+        """TODO
 
-        infile_name = "temp/liftover_temp_file_" + src + '.bed'
-        self.to_bed(infile_name)
+        """
+        src = str(self.genome)
+        target = str(target_genome)
 
-        outfile_name = "temp/liftover_temp_file_" + target + '.bed'
-        unmapped_file = "temp/unmapped.bed"
+        src_file = "temp/liftover_temp_file_" + src + '.bed'
+        self.to_bed(src_file)
 
-        chain_name = src + 'To' + target.capitalize() + '.over.chain'
-        url = 'https://hgdownload.cse.ucsc.edu/goldenpath/' + src + '/liftOver/' + chain_name + '.gz'
-        path_to_chain = 'liftover_files/' + chain_name
-        path_to_gz = path_to_chain + '.gz'
+        target_file = "temp/liftover_temp_file_" + target + '.bed'
 
-        if not path.exists(path_to_chain) and not path.exists(path_to_gz):
-            r = requests.get(url, allow_redirects=True)
-            if r.status_code != 200:
-                raise LookupError("Chain file " + chain_name + " does not exist. There may not be a valid mapping between these genomes")
+        # call to Genome class' static utility method
+        if chain:
+            Genome.liftover(self.genome, target_genome, src_file, target_file, path_to_chain=chain)
+        else:
+            Genome.liftover(self.genome, target_genome, src_file, target_file)
 
-            gzip.open(path_to_gz, 'wb').write(r.content)
-            # TODO: figure out how to close!
-        if not path.exists(path_to_chain):
-            content = gzip.open(path_to_gz, 'rb').read()
-            f = open(path_to_chain, 'wb')
-            chain_contents = gzip.decompress(content)
-            f.write(chain_contents)
-            f.close()
-
-        liftover_call = './liftOver ' + infile_name + ' ' + path_to_chain + ' ' + outfile_name + ' ' + unmapped_file
-        redirect = ' 2> log.err'
-        os.system(liftover_call + redirect)
-
-        lifted_sequence = SequenceSet(outfile_name, target_genome)
+        lifted_sequence = SequenceSet(target_file, target_genome)
         return lifted_sequence
+      
             
 # tests
 def test_hg19_file_creation():
@@ -120,26 +118,30 @@ def test_hg19_file_creation():
 
 def hg19_to_hg38():
     ss = SequenceSet("test_files/hg19_ex.bed", "hg19")
-    lss = ss.liftover("hg38")
+    lss = ss.liftover(Genome("hg38"))
 
 def nonexistent_file():
     ss = SequenceSet("test_files/hg17_ex.bed", "hg19")
-    lss = ss.liftover("hg38")
+    lss = ss.liftover(Genome("hg38"))
 
 def nonexistent_src():
     ss = SequenceSet("test_files/hg19_ex.bed", "jf89")
-    lss = ss.liftover("hg38")
+    lss = ss.liftover(Genome("hg38"))
 
 def bad_src_file():
     ss = SequenceSet("test_files/hg19_bad.bed", "hg19")
-    lss = ss.liftover("hg38")
+    lss = ss.liftover(Genome("hg38"))
 
 def wrong_col_count():
     ss = SequenceSet("test_files/hg19_bad2.bed", "hg19")
-    lss = ss.liftover("hg38")
+    lss = ss.liftover(Genome("hg38"))
 
-#hg19_to_hg38()
-wrong_col_count()
+def bad_chain_file():
+    # should raise LiftoverError
+    ss = SequenceSet("test_files/hg19_ex.bed", "hg19")
+    lss = ss.liftover(Genome("hg38"), "test_files/bad_hg19_hg38.over.chain")
+
+hg19_to_hg38()
 
 # print(ss.coordinates[0].genome)
 # print(ss.coordinates[0].chromosome)
