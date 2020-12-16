@@ -88,10 +88,10 @@ class SequenceSet():
         """
         f = open(fasta_file_name, "w")
         for coord in self.coordinates:
-            seq = coord.string() # TODO what to do if this fails?
-            f.write(">")
-            if coord.label != None:
-                f.write(coord.label)
+            seq = coord.string() 
+            f.write("> ")
+            chr1:213941196-213942363
+            f.write(coord.chromosome + ":" + coord.start + "-" + coord.end)
             f.write("\n")
             f.write(seq)
             f.write("\n")
@@ -166,4 +166,3 @@ class SequenceSet():
         # create a new object of the lifted result
         lifted_sequence = SequenceSet([target_file], target_genome)
         return lifted_sequence
-      
