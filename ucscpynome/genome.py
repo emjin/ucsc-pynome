@@ -24,9 +24,9 @@ class Genome():
     """ 
         An instance of Genome represents a genome. Each unique genome only has one
         genome object associated with it. Genomes are equivalent if they represent the
-        same genome. A genome object allows users to easily access different functionalities
-        related to the genome. The Genome class also contains utility methods common across
-        all genomes.
+        same genome. A genome object allows users to easily access different 
+        functionalities related to the genome. The Genome class also contains utility 
+        methods common across all genomes.
 
         Raises:
         InvalidGenomeError
@@ -87,13 +87,16 @@ class Genome():
 
     def __download_chrom_sequence(self, file_prefix, chromosome):
         """
-            Helper method to get the entire DNA sequence for a specific chromsome in a UCSC database genome
+            Helper method to get the entire DNA sequence for a specific chromsome in a 
+            UCSC database genome.
             Saves to a created file with name file_prefix_{genome}_chromosome
             Client should not call the method!
             
             Params: 
-                file_prefix (string): identifier for the file(s) where the sequence data should be dumped
-                chromosome (string): optional parameter for which chromosome to download sequence data for
+                file_prefix (string): identifier for the file(s) where the sequence data 
+                should be dumped
+                chromosome (string): optional parameter for which chromosome to download 
+                sequence data for
 
             Calls endpoints:
                 - GET /getData/sequence?genome={genome};chrome={chromosome}
@@ -120,17 +123,21 @@ class Genome():
         """
             Downloads a DNA sequence of a given chromosome for a genome
             If no chromosome is given, download all chromosomes of that genome
-            Sequences are outputted to a created file with path file_prefix_{genome}_{chromosome}
+            Sequences are outputted to a created file with path :
+            file_prefix_{genome}_{chromosome}
             One file per downloaded chromosome is created
             
             Params:
-                file_prefix (string): identifier for the file(s) where the sequence data should be dumped
-                chromosome (string): optional parameter for which chromosome to download sequence data for
+                file_prefix (string): identifier for the file(s) where the sequence data 
+                should be dumped
+                chromosome (string): optional parameter for which chromosome to download 
+                sequence data for
             
             Returns:
                 file(s): file object(s) containing the DNA sequence of the chromosome(s)
 
-            Raises: InvalidChromosomeError if the input chromosome does not exist for the genome
+            Raises: InvalidChromosomeError if the input chromosome does not exist for the 
+                    genome
         """
         if chromosome == None:
             chromosomes = self.list_chromosomes()
@@ -161,6 +168,7 @@ class Genome():
             self.__chromosomes = chromosome_list
         return self.__chromosomes
        
+    @staticmethod
     def list_genomes(organism=None):
         """
             Static utility method
@@ -168,13 +176,15 @@ class Genome():
             If organism specified, lists all genomes corresponding to that organism
             
             Params:
-                organism (string): optional string to specify which organism to get the genomes for
+                organism (string): optional string to specify which organism to get the 
+                genomes for
 
             Returns:
                 List[string]: list of genomes
 
             Raises:
-                InvalidOrganismError: If there is no corresponding genome to the organism in the UCSC genome database
+                InvalidOrganismError: If there is no corresponding genome to the organism 
+                in the UCSC genome database
 
         """
         if organism == None:
@@ -187,26 +197,74 @@ class Genome():
             else:
                 raise InvalidOrganismError(organism + " is not a valid organism")
 
-    # static utility method to perform liftover
-    # just a wrapper around ucsc liftover that downloads chain files
     @staticmethod
-    def liftover(src_genome, target_genome, src_file, target_file, unmapped_file = None, path_to_chain = None):
-        script_dir = os.path.dirname(__file__)
+    def liftover(src_genome, target_genome, src_file, target_file, 
+                 unmapped_file = None, path_to_chain = None):
+        """
+            Static utility method to perform liftover between two genomes.
+            Wrapper around UCSC's command-line liftOver tool.
 
+            This method generates and saves additional files when necessary: 
+
+            log file (always): 
+                {src_genome}To{target_genome}_liftover_log.err
+
+            chain files (if not specified):
+                {src_genome}To{Target_genome}.over.chain.gz
+                {src_genome}To{Target_genome}.over.chain
+
+            unmapped file (if not specified):
+                {src_genome}To{target_genome}_unmapped.bed
+
+
+            This method saves all generated files inside /liftover_files directory, which
+            has three subdirectories:
+
+            /bed_files      : any bed files created by ucscpynome in the process of liftover,
+                              including unmapped.bed files.
+            /chain_files    : chain files downloaded (when path_to_chain is not specified).
+            /log_files      : logs generated by UCSC's liftOver tool
+  
+            Params:
+                src_genome (Genome): genome to liftover from
+                target_genome (Genome): genome to liftover to
+                src_file (string): path to source genome's bed file
+                target_file (string): path to bed file to write the lifted genome data
+                unmapped_file (string): optional parameter to specify the path to a bed 
+                file to store unmapped coordinates
+                path_to_chain (string): optional parameter to specify the path to a
+                custom chain file to use for the liftover
+
+            Raises:
+                LookupError: If the chain file for the specified source and target 
+                genomes doesn't exist.
+                LiftoverError: If there is an error during liftover using UCSC's 
+                command-line liftover tool.
+
+        """
+
+        VALID_LOG_LINES = ["Reading liftover chains", "Mapping coordinates"]
+        CHAIN_FILES_PATH = "liftover_files/chain_files/"
+        LOG_FILES_PATH = "liftover_files/log_files/"
+        BED_FILES_PATH = "liftover_files/bed_files/"
+
+        script_dir = os.path.dirname(__file__)
+        print(script_dir)
+        
         def check_liftover_success(liftover_log):
             liftover_file = open(liftover_log, 'r')
-            valid_log_lines = ["Reading liftover chains", "Mapping coordinates"]
             lift_err_msg = ""
             for line in liftover_file:
                 line = line.strip()
-                if line not in valid_log_lines:
+                if line not in VALID_LOG_LINES:
                     lift_err_msg += "liftover error: " + line + "\n"
             liftover_file.close()
             return lift_err_msg
 
-
         def download_chain_file(chain_name, url, redownload):
-            path_to_chain = os.path.join(script_dir, 'liftover_files/' + chain_name)
+            # path_to_chain = CHAIN_FILES_PATH + chain_name
+            path_to_chain = os.path.join(script_dir, CHAIN_FILES_PATH + chain_name)
+            
             path_to_gz = path_to_chain + '.gz'
 
             if redownload or (not path.exists(path_to_chain) and not path.exists(path_to_gz)):
@@ -215,8 +273,8 @@ class Genome():
                     raise LookupError("Chain file " + chain_name + " does not exist. There may not be a valid mapping between these genomes")
 
                 gzip.open(path_to_gz, 'wb').write(r.content)
-                # TODO: figure out how to close!
-            if redownload or (not path.exists(path_to_chain)):
+
+            if redownload or not path.exists(path_to_chain):
                 content = gzip.open(path_to_gz, 'rb').read()
                 f = open(path_to_chain, 'wb')
                 chain_contents = gzip.decompress(content)
@@ -225,14 +283,16 @@ class Genome():
 
             return path_to_chain
 
+        # get genome names for source and target
         src = str(src_genome)
         target = str(target_genome)
 
-        # testing
+        # if unmapped_file not given, create a new one
         if not unmapped_file:
-            unmapped_file = os.path.join(src + "To" + target + "unmapped.bed")
+            unmapped_file = os.path.join(script_dir, BED_FILES_PATH + src + "To" + target + "_unmapped.bed")
 
-        liftover_log = os.path.join(script_dir, "liftover_files/log_files/" + src + "To" + target + "_liftover_log.err")
+        # create a liftover log file
+        liftover_log = os.path.join(script_dir, LOG_FILES_PATH + src + "To" + target + "_liftover_log.err")
 
         # download chain file if necessary
         chainprovided = True
@@ -243,6 +303,7 @@ class Genome():
             url = 'https://hgdownload.cse.ucsc.edu/goldenpath/' + src + '/liftOver/' + chain_name + '.gz'
             path_to_chain = download_chain_file(chain_name, url, redownload=False)
 
+        # make a call to liftover command-line tool
         liftover_call = 'liftOver ' + src_file + ' ' + path_to_chain + ' ' + target_file + ' ' + unmapped_file
         redirect = ' 2> ' + liftover_log
         os.system(os.path.join(script_dir, liftover_call) + redirect)
@@ -250,6 +311,7 @@ class Genome():
         # handle errors
         lift_err_msg = check_liftover_success(liftover_log)
 
+        # error handling
         liftover_error = False
         if lift_err_msg:
             if not chainprovided:

@@ -1,1 +1,0 @@
-This is where you can find your liftover chain files.

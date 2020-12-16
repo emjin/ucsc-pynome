@@ -1,0 +1,1 @@
+This is where you can find the chain files downloaded by liftover.
