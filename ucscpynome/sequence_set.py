@@ -129,9 +129,11 @@ class SequenceSet():
         f = open(fasta_file_name, "w")
         for seq in self.sequences:
             seq_string = seq.string()
-            f.write(">")
+            f.write("> ")
             if seq.label != None:
                 f.write(seq.label)
+            else:
+                f.write(seq.chromosome + ":" + seq.start + "-" + seq.end)
             f.write("\n")
             f.write(seq_string)
             f.write("\n")
