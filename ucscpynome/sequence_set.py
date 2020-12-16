@@ -13,8 +13,20 @@ class MalformedBedFileError(Exception):
 
 
 class SequenceSet():
-    """TODO
+    """ Represents a set of sequences pulled from one or more bed files.
 
+    The format of a valid bed file is taken from Wikipedia:
+    https://en.wikipedia.org/wiki/BED_(file_format)
+
+    Use methods here to:
+        - construct a sequence set from one or more bed files
+        - put the coordinates of all sequences in the set into a bed file
+        - perform liftover on a sequence set from one genome to another
+
+    Raises:
+        TypeError: if constructor is passed a single bed file name rather than a list
+        MalformedBedFileError: if bed file cannot be successfully parsed
+        OSError: if a file cannot be opened or created
     """
     
     MIN_NUM_COLS = 3
@@ -27,16 +39,29 @@ class SequenceSet():
             raise TypeError("bed_file_names should be of type list")
 
         self.genome = genome
-        self.coordinates = list()
+        self.sequences = list()
         for filename in bed_file_names:
             self.__parse_bed_file(filename)
 
     def __is_header_line(self, L):
+        """ Check if the given line is part of the header of a bed file
+
+        :param L: line of bed file to check
+        :return: true if header starts with "browser", "track", or "#" as specified by Wikipedia
+        """
         first_word = L[0]
         return first_word == "browser" or first_word == "track" or first_word == "#"
 
     def __parse_bed_file(self, bed_file_name):
-        curr_file_coordinates = list()
+        """ Parse given bed file and place its sequences into set
+
+        Raises:
+            OSError: if file cannot be opened or read
+            MalformedBedFileError: if file does not have correct format
+
+        :param bed_file_name: file to read sequence data from (chromosome, start, end, label)
+        """
+        curr_file_sequences = list()
         with open(bed_file_name) as f:
             num_columns = -1
             for line in f:
@@ -54,46 +79,61 @@ class SequenceSet():
                         # there is additional line data
                         additional_cols = L[self.MIN_NUM_COLS:]
                         label = " ".join(additional_cols)
-                        coord = Sequence(L[self.START_COL], L[self.END_COL], self.genome, 
+                        seq = Sequence(L[self.START_COL], L[self.END_COL], self.genome,
                                             L[self.CHROM_COL], label)
-                        curr_file_coordinates.append(coord)
+                        curr_file_sequences.append(seq)
                     else:
-                        coord = Sequence(L[self.START_COL], L[self.END_COL], 
+                        seq = Sequence(L[self.START_COL], L[self.END_COL],
                                             self.genome, L[self.CHROM_COL])
-                        curr_file_coordinates.append(coord)
+                        curr_file_sequences.append(seq)
         # successfully parsed bed file
-        self.coordinates.extend(curr_file_coordinates)
+        self.sequences.extend(curr_file_sequences)
     
-    # will overwrite existing file if bed_file_name already exists
     def to_bed(self, bed_file_name):
-        """TODO
+        """Dump the sequence set data into a single bed file.
 
+        WARNING: If bed_file_name already exists, this will overwite that file.
+
+        Raises:
+            OSError: if bed_file_name cannot be opened with write permissions
+
+        :param bed_file_name: name of file to which to write sequence set
         """
         f = open(bed_file_name, "w")
-        for coord in self.coordinates:
-            f.write(coord.chromosome)
+        for sequence in self.sequences:
+            f.write(sequence.chromosome)
             f.write("\t")
-            f.write(coord.start)
+            f.write(sequence.start)
             f.write("\t")
-            f.write(coord.end)
-            if coord.label != None:
+            f.write(sequence.end)
+            if sequence.label != None:
                 f.write("\t")
-                f.write(coord.label)
+                f.write(sequence.label)
             f.write("\n")
         f.close()
 
     def to_fasta(self, fasta_file_name):
-        """TODO
+        """Dump actual sequence strings from sequence set into a fasta file.
 
+        WARNING: If fasta_file_name already exists, this will overwite that file.
+
+        The call to sequence.string() may cause a network request if the sequence
+        string has not been populated yet.
+
+        Raises:
+            OSError: if fasta_file_name cannot be opened with write permissions
+            NetworkError: if cannot download sequence string
+
+        :param fasta_file_name: name of fasta file
         """
         f = open(fasta_file_name, "w")
-        for coord in self.coordinates:
-            seq = coord.string() # TODO what to do if this fails?
+        for seq in self.sequences:
+            seq_string = seq.string()
             f.write(">")
-            if coord.label != None:
-                f.write(coord.label)
+            if seq.label != None:
+                f.write(seq.label)
             f.write("\n")
-            f.write(seq)
+            f.write(seq_string)
             f.write("\n")
         f.close()
     
@@ -166,4 +206,3 @@ class SequenceSet():
         # create a new object of the lifted result
         lifted_sequence = SequenceSet([target_file], target_genome)
         return lifted_sequence
-      

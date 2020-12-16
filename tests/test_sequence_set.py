@@ -40,7 +40,7 @@ class TestSequence(unittest.TestCase):
 
         # compare file content
         self.assertTrue(self.content_is_equal(lss_output, "test_files/expected_outputs/hg38.bed"))
-        self.assertTrue(self.content_is_equal(unmapped_output, "test_files/expected_outputs/hg19Tohg38_unmapped.bed"))
+        self.assertTrue(os.stat(unmapped_output).st_size == 0)
         self.assertTrue(self.content_is_equal(chain_output, "test_files/expected_outputs/hg19Tohg38.over.chain"))
 
     def test_nonexistent_file(self):
