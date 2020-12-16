@@ -1,5 +1,5 @@
-from .sequence import Sequence
-from .genome import Genome
+from . import Sequence
+from . import Genome
 import sys
 import subprocess
 import requests
@@ -25,7 +25,7 @@ class SequenceSet():
     def __init__(self, bed_file_names, genome):
         if not isinstance(bed_file_names, list):
             raise TypeError("bed_file_names should be of type list")
-        
+
         self.genome = genome
         self.coordinates = list()
         for filename in bed_file_names:

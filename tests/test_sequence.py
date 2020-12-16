@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 import sys
 sys.path.append("..")
+from ucscpynome import Requests
 from ucscpynome import Sequence
 
 TEST_GENOME = "hg38"
@@ -24,6 +25,7 @@ def mocked_requests_get(*args, **kwargs):
         return MockResponse({SEQUENCE_KEY: "TCACCACCTCTTGCTC"}, 200)
 
     return MockResponse(None, 404)
+
 
 
 class TestSequence(unittest.TestCase):

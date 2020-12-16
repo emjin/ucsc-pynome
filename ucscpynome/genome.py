@@ -4,7 +4,7 @@ import os.path
 from os import path
 import gzip
 import requests
-from .retry import Requests
+from . import Requests
 
 
 class InvalidGenomeError(ValueError):

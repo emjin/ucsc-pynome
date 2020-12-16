@@ -8,4 +8,4 @@
  
  ## Usage
  
-See [`example-workspace/`](/example-workspace) for examples of how to use this API.
+See [`example-workspace/new_api/`](/example-workspace/new_api) for examples of how to use this API.
