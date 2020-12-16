@@ -10,6 +10,8 @@ import gzip
 class MalformedBedFileError(Exception):
     pass
 
+
+
 class SequenceSet():
     """TODO
 
@@ -21,16 +23,13 @@ class SequenceSet():
     END_COL = 2
 
     def __init__(self, bed_file_names, genome):
+        if not isinstance(bed_file_names, list):
+            raise TypeError("bed_file_names should be of type list")
+        
         self.genome = genome
         self.coordinates = list()
         for filename in bed_file_names:
-            try:
-                self.__parse_bed_file(filename)
-            except (OSError, MalformedBedFileError) as e:
-                print(repr(e))
-                print("Unable to parse bed file " + filename)
-            else:
-                print("Successfully parsed bed file " + filename)
+            self.__parse_bed_file(filename)
 
     def __is_header_line(self, L):
         first_word = L[0]
@@ -50,7 +49,7 @@ class SequenceSet():
                         if num_columns < self.MIN_NUM_COLS:
                             raise MalformedBedFileError("Not enough columns")
                     elif len(L) != num_columns:
-                        raise MalformedBedFileError("Number of columns is not the same across all lines")
+                        raise MalformedBedFileError("Number of columns is not the same across all lines in file: " + bed_file_name)
                     if len(L) > self.MIN_NUM_COLS:
                         # there is additional line data
                         additional_cols = L[self.MIN_NUM_COLS:]
@@ -200,12 +199,3 @@ def bad_chain_file():
     ss = SequenceSet(["test_files/hg19_ex.bed"], "hg19")
     lss = ss.liftover(Genome("hg38"), "test_files/bad_hg19_hg38.over.chain")
 
-# hg19_to_hg38()
-# print(ss.coordinates[0].genome)
-# print(ss.coordinates[0].chromosome)
-# print(ss.coordinates[0].start)
-# print(ss.coordinates[0].end)
-# ss = SequenceSet("hg19_new.bed", "hg19")
-# ss.convert_to_bed("hg19_new2.bed")
-# tests TODO should test out label functionality for convert_to_bed
-# should also test out failure cases

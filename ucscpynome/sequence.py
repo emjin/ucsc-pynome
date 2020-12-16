@@ -1,5 +1,6 @@
 import requests
 import re
+from retry import Requests
 
 
 class NetworkError(Exception):
@@ -18,6 +19,9 @@ class Sequence():
         BadRequestError: if a 400 status code is returned due to incorrect genome, chromosome or coordinates given. 
                          Specifics will be printed out with the error
     """ 
+
+    __sequence_request = Requests()
+
     def __init__(self, start, end, genome, chromosome, label=None):
         """ Get an instance of a Sequence. Client should not use the constructor!
 
@@ -75,7 +79,7 @@ class Sequence():
         url += 'chrom=' + self.chromosome + ';'
         url += 'start=' + str(self.start) + ';'
         url += 'end=' + str(self.end)
-        response = requests.get(url)
+        response = Sequence.__sequence_request.get(url)
         info = response.json()
         
         if response.status_code in [200, 201, 202, 204]:
@@ -89,3 +93,25 @@ class Sequence():
         else:
             raise NetworkError('%d', response.status_code)
 
+    def set_timeout(timeout):
+        """ 
+            Sets the Sequence class request timeout
+
+            Params:
+                timeout (int):  new timeout duration in seconds 
+
+        """
+        Sequence.__sequence_request.set_timeout(timeout)
+
+    def set_retries(retries):
+        """ 
+            Sets the Sequence class request number of retries
+
+            Params:
+                retries (int):  new number of request retries 
+
+        """
+        Sequence.__sequence_request.set_retries(retries)
+
+s = Sequence("1234", "5678", "hg38", "chrM")
+print(s.string())
