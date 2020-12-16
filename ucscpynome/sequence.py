@@ -14,12 +14,15 @@ class Sequence():
 
     Use methods here to get the string value of a certain sequence.
 
-    Attributes: (all are read-only)
-        start (int): Start index in chromosome
-        end (int): End index in chromosome
-        genome (str): Genome to which sequence belongs
-        chromosome (str): Chromosome to which sequence belongs
-        label (str): Additional metadata about sequence (read from bed file)
+    Attributes:
+        Read-only:
+            start (int): Start index in chromosome
+            end (int): End index in chromosome
+            genome (str): Genome to which sequence belongs
+            chromosome (str): Chromosome to which sequence belongs
+        Mutable:
+            label (str): Additional metadata about sequence (read from bed file)
+                         The user can change this at their discretion, e.g. if doing liftover
     
     Raises:
         NetworkError:  raised if a connection issue occurs during the API request
