@@ -23,6 +23,10 @@ class SequenceSet():
         - put the coordinates of all sequences in the set into a bed file
         - perform liftover on a sequence set from one genome to another
 
+    Attributes: (all are read-only)
+        genome (str): name of genome to which sequences belong
+        sequences (list of Sequence): list of sequences in set
+
     Raises:
         TypeError: if constructor is passed a single bed file name rather than a list
         MalformedBedFileError: if bed file cannot be successfully parsed

@@ -13,6 +13,13 @@ class Sequence():
     """Represents a DNA sequence of a chromosome in a UCSC database genome characterized by start and end coordinates.
 
     Use methods here to get the string value of a certain sequence.
+
+    Attributes: (all are read-only)
+        start (int): Start index in chromosome
+        end (int): End index in chromosome
+        genome (str): Genome to which sequence belongs
+        chromosome (str): Chromosome to which sequence belongs
+        label (str): Additional metadata about sequence (read from bed file)
     
     Raises:
         NetworkError:  raised if a connection issue occurs during the API request
