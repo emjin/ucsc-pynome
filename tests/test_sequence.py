@@ -46,6 +46,21 @@ class TestSequence(unittest.TestCase):
         self.assertTrue(self.newSeq.string() is self.newSeq.string())
         self.assertEqual(len(str(self.newSeq.string())),(TEST_CHROM_END-TEST_CHROM_START))
 
+    # ensure users can't change immutable sequence attributes
+    def test_sequence_immutable(self):
+        def immutable_help():
+            self.newSeq.start = 15
+        self.assertRaises(AttributeError, immutable_help)
+        def immutable_help2():
+            self.newSeq.end = 15
+        self.assertRaises(AttributeError, immutable_help2)
+        def immutable_help3():
+            self.newSeq.genome = "trash"
+        self.assertRaises(AttributeError, immutable_help3)
+        def immutable_help4():
+            self.newSeq.chromosome = "junk"
+        self.assertRaises(AttributeError, immutable_help4)
+
 
     
 

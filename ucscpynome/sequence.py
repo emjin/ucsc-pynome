@@ -32,12 +32,28 @@ class Sequence():
             chromosome (string): target chromosome
             label (string): optional string for the user to identify the Sequence by
         """
-        self.start = start
-        self.end = end
-        self.genome = genome 
-        self.chromosome = chromosome
+        self._start = start
+        self._end = end
+        self._genome = genome 
+        self._chromosome = chromosome
         self.label = label
         self.__sequence = None
+
+    @property
+    def start(self):
+        return self._start
+
+    @property
+    def end(self):
+        return self._end
+    
+    @property
+    def genome(self):
+        return self._genome
+
+    @property
+    def chromosome(self):
+        return self._chromosome
 
     def string(self):
         """

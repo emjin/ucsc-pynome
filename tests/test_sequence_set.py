@@ -49,7 +49,7 @@ class TestSequence(unittest.TestCase):
         self.assertRaises(FileNotFoundError, no_bed_file)
         
 
-    def test_nonexistent_src(self):
+    def test_nonexistent_target(self):
         def bad_liftover_target():
             ss = SequenceSet(["test_files/hg19_ex.bed"], "badtarget")
             lss = ss.liftover(Genome("hg38"))
