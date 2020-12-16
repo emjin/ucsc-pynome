@@ -1,25 +1,50 @@
 import unittest
+from unittest import mock
 import sys
 sys.path.append("..")
 from ucscpynome import Requests
 from ucscpynome import Sequence
+
+TEST_GENOME = "hg38"
+TEST_CHROM = "chrM"
+TEST_CHROM_START = 1234
+TEST_CHROM_END = 1250
+
+SEQUENCE_KEY = "dna"
+
+def mocked_requests_get(*args, **kwargs):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def json(self):
+            return self.json_data
+
+    if str(TEST_CHROM_START) in args[0] and str(TEST_CHROM_END) in args[0]:
+        return MockResponse({SEQUENCE_KEY: "TCACCACCTCTTGCTC"}, 200)
+
+    return MockResponse(None, 404)
 
 
 
 class TestSequence(unittest.TestCase):
     
     def setUp(self):
-        self.newSeq = Sequence(1234, 5678, "hg38", "chrM")
+        self.newSeq = Sequence(TEST_CHROM_START, TEST_CHROM_END, TEST_GENOME, TEST_CHROM)
 
-    #test output of printing sequence info
+    # test output of printing sequence info
     def test_print_sequence(self):
-       self.assertTrue((str(self.newSeq)) == "{'start': 1234, 'end': 5678, 'genome': 'hg38', 'chromosome': 'chrM'}")
+        expected_seq = f"{{'start': {TEST_CHROM_START}, 'end': {TEST_CHROM_END}, " \
+                       f"'genome': '{TEST_GENOME}', 'chromosome': '{TEST_CHROM}'}}"
+        self.assertTrue((str(self.newSeq)) == expected_seq)
 
-    #ensure sequence string is same object and saved due to lazy evaluation
-    #ensures the length is the equal to the difference of the coordinates
-    def test_sequence_string(self):
+    # ensure sequence string is same object and saved due to lazy evaluation
+    # ensures the length is the equal to the difference of the coordinates
+    @mock.patch('requests.get', side_effect=mocked_requests_get)
+    def test_sequence_string(self, mock_get):
         self.assertTrue(self.newSeq.string() is self.newSeq.string())
-        self.assertEqual(len(str(self.newSeq.string())),(5678-1234))
+        self.assertEqual(len(str(self.newSeq.string())),(TEST_CHROM_END-TEST_CHROM_START))
 
 
     
