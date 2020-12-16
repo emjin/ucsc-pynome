@@ -1,6 +1,6 @@
 import requests
 import re
-from retry import Requests
+from .retry import Requests
 
 
 class NetworkError(Exception):

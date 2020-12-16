@@ -31,14 +31,14 @@ class TestSequence(unittest.TestCase):
     def setUp(self):
         self.newSeq = Sequence(TEST_CHROM_START, TEST_CHROM_END, TEST_GENOME, TEST_CHROM)
 
-    #test output of printing sequence info
+    # test output of printing sequence info
     def test_print_sequence(self):
         expected_seq = f"{{'start': {TEST_CHROM_START}, 'end': {TEST_CHROM_END}, " \
                        f"'genome': '{TEST_GENOME}', 'chromosome': '{TEST_CHROM}'}}"
         self.assertTrue((str(self.newSeq)) == expected_seq)
 
-    #ensure sequence string is same object and saved due to lazy evaluation
-    #ensures the length is the equal to the difference of the coordinates
+    # ensure sequence string is same object and saved due to lazy evaluation
+    # ensures the length is the equal to the difference of the coordinates
     @mock.patch('requests.get', side_effect=mocked_requests_get)
     def test_sequence_string(self, mock_get):
         self.assertTrue(self.newSeq.string() is self.newSeq.string())

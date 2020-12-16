@@ -4,7 +4,7 @@ import os.path
 from os import path
 import gzip
 import requests
-from retry import Requests
+from .retry import Requests
 
 
 class InvalidGenomeError(ValueError):
@@ -112,7 +112,7 @@ class Genome():
         url += chromosome
         response = Genome.__genome_request.get(url)
         info = response.json()
-        
+
         if response.status_code in [200, 201, 202, 204]:
             with open(file_prefix + "_" + self.__genome + "_" + chromosome, "w", encoding='utf-8') as f:
                 f.write(info['dna'])

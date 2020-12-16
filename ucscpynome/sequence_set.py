@@ -1,5 +1,5 @@
-from sequence import Sequence
-from genome import Genome
+from .sequence import Sequence
+from .genome import Genome
 import sys
 import subprocess
 import requests
