@@ -8,4 +8,5 @@
  
  ## Usage
  
+ To set up this API for usage, run the ['setup script'](/ucscpynome/setup.sh) before running any code. TODO make setup scripts for each OS and link to those.
 See [`example-workspace/new_api/`](/example-workspace/new_api) for examples of how to use this API.
