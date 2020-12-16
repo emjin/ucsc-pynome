@@ -100,6 +100,7 @@ class Genome():
 
             Raises: InvalidChromosomeError if the chromosome does not exist for the genome
         """
+        print("Downloading sequence for chromosome " + chromosome + " in genome " + self.__genome)
         url = "http://api.genome.ucsc.edu/getData/sequence?genome="
         url += self.__genome + ";chrom="
         url += chromosome
@@ -110,6 +111,7 @@ class Genome():
             with open(file_prefix + "_" + self.__genome + "_" + chromosome, "w", encoding='utf-8') as f:
                 f.write(info['dna'])
                 f.close()
+            print("Download complete for chromosome " + chromosome + " in genome " + self.__genome)
 
         elif response.status_code == 400:
             raise InvalidChromosomeError("could not find chromosome " + chromosome + " in genome")
