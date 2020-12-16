@@ -1,7 +1,9 @@
 import unittest
 import sys
 sys.path.append("..")
+from ucscpynome import Requests
 from ucscpynome import Sequence
+
 
 
 class TestSequence(unittest.TestCase):
