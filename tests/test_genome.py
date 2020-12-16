@@ -30,7 +30,6 @@ def mocked_requests_get(*args, **kwargs):
             return self.json_data
 
     # list chromosomes
-    print(args[0])
     if f"list/chromosomes?genome={TEST_GENOME}" in args[0]:
         return MockResponse({CHROMOSOMES_KEY: TEST_CHROMOSOMES_JSON}, 200)
     elif "list/ucscGenomes" in args[0]:
@@ -85,8 +84,6 @@ class TestGenome(unittest.TestCase):
             chrom_filename = f"temp_{TEST_GENOME}_" + chrom
             with open(chrom_filename) as chrom_f:
                 contents = chrom_f.read()
-                print(contents)
-                print("HA")
                 self.assertTrue(TEST_CHROM_M_SEQUENCE in contents or TEST_CHROM_1_SEQUENCE in contents)
             os.remove(chrom_filename)
 
@@ -94,7 +91,9 @@ class TestGenome(unittest.TestCase):
     def test_list_chromosomes_all(self, mock_get):
         #lists all chromosomes for a genome -- hg38
         chromosome_list = self.hg_genome.list_chromosomes()
-        print(chromosome_list)
         self.assertTrue(len(chromosome_list) > 0)
         self.assertEqual(list(chromosome_list).count(TEST_CHROM_1), 1)
         self.assertEqual(list(chromosome_list).count(TEST_CHROM_M), 1)
+
+if __name__ == '__main__':
+    unittest.main()

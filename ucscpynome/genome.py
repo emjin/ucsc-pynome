@@ -252,7 +252,7 @@ class Genome():
                 custom chain file to use for the liftover
 
             Raises:
-                LookupError: If the chain file for the specified source and target 
+                FileNotFoundError: If the chain file for the specified source and target 
                 genomes doesn't exist.
                 LiftoverError: If there is an error during liftover using UCSC's 
                 command-line liftover tool.
@@ -285,7 +285,7 @@ class Genome():
             if redownload or (not path.exists(path_to_chain) and not path.exists(path_to_gz)):
                 r = requests.get(url, allow_redirects=True)
                 if r.status_code != 200:
-                    raise LookupError("Chain file " + chain_name + " does not exist. There may not be a valid mapping between these genomes")
+                    raise FileNotFoundError("Chain file " + chain_name + " does not exist. There may not be a valid mapping between these genomes")
 
                 gzip.open(path_to_gz, 'wb').write(r.content)
 
