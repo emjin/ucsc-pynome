@@ -5,6 +5,7 @@ from os import path
 import gzip
 import requests
 from . import Requests
+import re
 
 
 class InvalidGenomeError(ValueError):
@@ -122,7 +123,7 @@ class Genome():
         elif response.status_code == 400:
             raise InvalidChromosomeError("could not find chromosome " + chromosome + " in genome")
 
-    def download_sequence(self, file_prefix=None, chromosome=None):
+    def download_sequence(self, file_prefix=None, chromosome=None, include_pseudochromosomes=False):
         """
             Downloads a DNA sequence of a given chromosome for a genome
             If no chromosome is given, download all chromosomes of that genome
@@ -138,6 +139,10 @@ class Genome():
                 should be dumped
                 chromosome (string): optional parameter for which chromosome to download 
                 sequence data for
+                include_pseudochromosomes (boolean) : optional parameter for if users 
+                want to download pseudochromosome sequence data as well (ex: chrUn_XXX),
+                only relevant for downloading an entire genome and will be ignored if a
+                chromosome is specified in the input
             
             Returns:
                 file(s): file object(s) containing the DNA sequence of the chromosome(s)
@@ -148,6 +153,11 @@ class Genome():
         if chromosome == None:
             chromosomes = self.list_chromosomes()
             for chrom in chromosomes: 
+                if not(include_pseudochromosomes):
+                    pseudos_u = re.compile('chrUn_\w*')
+                    pseudos_n = re.compile('chr\d*_\w*')
+                    if pseudos_u.match(chrom) or pseudos_n.match(chrom):
+                        continue
                 self.__download_chrom_sequence(file_prefix, chrom)
         else:
             self.__download_chrom_sequence(file_prefix, chromosome)

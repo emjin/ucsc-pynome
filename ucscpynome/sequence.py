@@ -112,6 +112,3 @@ class Sequence():
 
         """
         Sequence.__sequence_request.set_retries(retries)
-
-s = Sequence("1234", "5678", "hg38", "chrM")
-print(s.string())

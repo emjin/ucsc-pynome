@@ -3,7 +3,7 @@ sys.path.append("../..")
 from ucscpynome import Genome
 from ucscpynome import SequenceSet
 
-hg38_gene = SequenceSet("gene.bed", "hg38")
+hg38_gene = SequenceSet(["gene.bed"], "hg38")
 primates = ["panTro6", "ponAbe3", "rheMac10"]
 
 for primate in primates:
