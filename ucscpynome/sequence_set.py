@@ -167,35 +167,3 @@ class SequenceSet():
         lifted_sequence = SequenceSet([target_file], target_genome)
         return lifted_sequence
       
-            
-# tests
-def test_hg19_file_creation():
-    ss = SequenceSet(["test_files/hg19_ex.bed"], "hg19")
-    ss.to_fasta("hg19_ex.fasta")
-    ss.to_bed("hg19_new.bed")
-
-def hg19_to_hg38():
-    ss = SequenceSet(["test_files/hg19_ex.bed"], "hg19")
-    lss = ss.liftover(Genome("hg38"))
-
-def nonexistent_file():
-    ss = SequenceSet("test_files/hg17_ex.bed", "hg19")
-    lss = ss.liftover(Genome("hg38"))
-
-def nonexistent_src():
-    ss = SequenceSet("test_files/hg19_ex.bed", "jf89")
-    lss = ss.liftover(Genome("hg38"))
-
-def bad_src_file():
-    ss = SequenceSet("test_files/hg19_bad.bed", "hg19")
-    lss = ss.liftover(Genome("hg38"))
-
-def wrong_col_count():
-    ss = SequenceSet("test_files/hg19_bad2.bed", "hg19")
-    lss = ss.liftover(Genome("hg38"))
-
-def bad_chain_file():
-    # should raise LiftoverError
-    ss = SequenceSet(["test_files/hg19_ex.bed"], "hg19")
-    lss = ss.liftover(Genome("hg38"), "test_files/bad_hg19_hg38.over.chain")
-
