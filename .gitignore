@@ -7,4 +7,3 @@ ucscpynome/liftover_files/*.chain
 ucscpynome/temp/*.bed
 ucscpynome/temp/*.err
 *.pyc
-*.html
