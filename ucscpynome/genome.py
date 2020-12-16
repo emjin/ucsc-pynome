@@ -4,6 +4,8 @@ import os.path
 from os import path
 import gzip
 import requests
+from retry import Requests
+
 
 class InvalidGenomeError(ValueError):
     """ InvalidGenomeError is raised when the user inputs an invalid genome """
@@ -33,6 +35,7 @@ class Genome():
         InvalidChromosomeError
         InvalidOrganismError
     """
+    __genome_request = Requests()
     __genome_dict = {}
     __organism_dict = {}
     
@@ -107,7 +110,7 @@ class Genome():
         url = "http://api.genome.ucsc.edu/getData/sequence?genome="
         url += self.__genome + ";chrom="
         url += chromosome
-        response = requests.get(url)
+        response = Genome.__genome_request.get(url)
         info = response.json()
         
         if response.status_code in [200, 201, 202, 204]:
@@ -119,13 +122,16 @@ class Genome():
         elif response.status_code == 400:
             raise InvalidChromosomeError("could not find chromosome " + chromosome + " in genome")
 
-    def download_sequence(self, file_prefix, chromosome=None):
+    def download_sequence(self, file_prefix=None, chromosome=None):
         """
             Downloads a DNA sequence of a given chromosome for a genome
             If no chromosome is given, download all chromosomes of that genome
             Sequences are outputted to a created file with path :
             file_prefix_{genome}_{chromosome}
             One file per downloaded chromosome is created
+
+            Timeout and retries and be set in set_timeout and set_retries
+            Default: 600 seconds, 2 retries
             
             Params:
                 file_prefix (string): identifier for the file(s) where the sequence data 
@@ -249,7 +255,6 @@ class Genome():
         BED_FILES_PATH = "liftover_files/bed_files/"
 
         script_dir = os.path.dirname(__file__)
-        print(script_dir)
         
         def check_liftover_success(liftover_log):
             liftover_file = open(liftover_log, 'r')
@@ -331,5 +336,35 @@ class Genome():
                 
         if liftover_error:
             raise LiftoverError(lift_err_msg)
+
+
+    def set_timeout(timeout):
+        """ 
+            Sets the Genome class request timeout for download_sequence
+
+            Default: 600 seconds
+
+            Params:
+                timeout (int):  new timoout duration in seconds 
+
+        """
+        Genome.__genome_request.set_timeout(timeout)
+
+    def set_retries(retries):
+        """ 
+            Sets the Genome class request number of retries for download_sequence
+
+            Default: 2 tries
+
+            Params:
+                retries (int):  new number of request retries 
+
+        """
+        Genome.__genome_request.set_retries(retries)
+
+
+
+
+
 
 
