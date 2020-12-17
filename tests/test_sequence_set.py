@@ -3,14 +3,16 @@ import os
 import sys
 sys.path.append("..")
 from ucscpynome import SequenceSet, Sequence, Genome
-from ucscpynome import MalformedBedFileError, LiftoverError
+from ucscpynome import MalformedBedFileError, LiftoverError, InvalidGenomeError
 
+TEST_GENOME = "hg19"
 class TestSequence(unittest.TestCase):
     
     def setUp(self):
         # self.script_dir = os.path.dirname(os.path.abspath(__file__))
         path_to_bed = "../tests/test_files/hg19_ex.bed"
-        self.hg19_ss = SequenceSet([path_to_bed], "hg19")
+        self.hg19 = Genome(TEST_GENOME)
+        self.hg19_ss = SequenceSet([path_to_bed], self.hg19)
 
     def content_is_equal(self, file1, file2):
         with open(file1, "r") as file1:
@@ -51,9 +53,9 @@ class TestSequence(unittest.TestCase):
 
     def test_nonexistent_target(self):
         def bad_liftover_target():
-            ss = SequenceSet(["test_files/hg19_ex.bed"], "badtarget")
-            lss = ss.liftover(Genome("hg38"))
-        self.assertRaises(LookupError, bad_liftover_target)
+            bad_genome = Genome("bad")
+            self.ss_h19.liftover(bad_genome)
+        self.assertRaises(InvalidGenomeError, bad_liftover_target)
 
     def test_bad_src_file(self):
         def bad_bed_file():
