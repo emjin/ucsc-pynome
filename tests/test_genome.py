@@ -6,6 +6,7 @@ sys.path.append("..")
 from ucscpynome import Genome
 
 TEST_GENOME = "hg38"
+HUMAN_GENOMES = ["hg16", "hg17", "hg18", "hg19", "hg38"]
 TEST_CHROM_M = "chrM"
 TEST_CHROM_1 = "chr1"
 
@@ -56,8 +57,8 @@ class TestGenome(unittest.TestCase):
         self.assertEqual(list(genome_list).count(TEST_GENOME), 1)
 
         # Lists all genomes, case-insensitive
-        self.assertEqual(Genome.list_genomes(TEST_ORG.lower()), [TEST_GENOME])
-        self.assertEqual(Genome.list_genomes(TEST_ORG.upper()), [TEST_GENOME])
+        self.assertEqual(Genome.list_genomes(TEST_ORG.lower()), HUMAN_GENOMES)
+        self.assertEqual(Genome.list_genomes(TEST_ORG.upper()), HUMAN_GENOMES)
         self.assertTrue(TEST_GENOME in Genome.list_genomes(TEST_ORG)) #ensure it exists
         self.assertEqual(Genome.list_genomes(TEST_ORG).count(TEST_GENOME), 1) #ensure no duplicates in list
 

@@ -18,7 +18,7 @@ class Sequence():
         Read-only:
             start (int): Start index in chromosome
             end (int): End index in chromosome
-            genome (str): Genome to which sequence belongs
+            genome (Genome): Genome object to which sequence belongs
             chromosome (str): Chromosome to which sequence belongs
         Mutable:
             label (str): Additional metadata about sequence (read from bed file)
@@ -38,7 +38,7 @@ class Sequence():
         Args: 
             start (int): start coordinate of the sequence
             end (int): int coordinate of the sequence
-            genome (string): target genome
+            genome (Genome): Genome object of the target genome
             chromosome (string): target chromosome
             label (string): optional string for the user to identify the Sequence by
         """
@@ -81,7 +81,7 @@ class Sequence():
         info = {
             "start": self.start,
             "end": self.end,
-            "genome": self.genome,
+            "genome": str(self.genome),
             "chromosome": self.chromosome
         }
         if self.label is not None:
@@ -101,7 +101,7 @@ class Sequence():
             - GET /getData/sequence?/genome={genome};chrom={chromosome};start={start};end={end}
         """
         url = 'https://api.genome.ucsc.edu/getData/sequence?'
-        url += 'genome=' + self.genome + ';'
+        url += 'genome=' + str(self.genome) + ';'
         url += 'chrom=' + self.chromosome + ';'
         url += 'start=' + str(self.start) + ';'
         url += 'end=' + str(self.end)
