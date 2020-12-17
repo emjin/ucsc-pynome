@@ -47,13 +47,12 @@ class TestSequence(unittest.TestCase):
         def no_bed_file():
             ss = SequenceSet(["test_files/hg17_ex.bed"], "hg19")
         self.assertRaises(FileNotFoundError, no_bed_file)
-        
 
     def test_nonexistent_target(self):
         def bad_liftover_target():
             ss = SequenceSet(["test_files/hg19_ex.bed"], "badtarget")
             lss = ss.liftover(Genome("hg38"))
-        self.assertRaises(LookupError, bad_liftover_target)
+        self.assertRaises(FileNotFoundError, bad_liftover_target)
 
     def test_bad_src_file(self):
         def bad_bed_file():
