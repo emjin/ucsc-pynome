@@ -11,7 +11,7 @@ intersecting_seqs = set()
 # Get sequences for each primate
 for primate in primates:
     print("Starting " + primate)
-    primate_gene = SequenceSet.liftover(hg19_seqs, primate)
+    primate_gene = SequenceSet.liftover(hg19_seqs, Genome(primate))
 
     # Go through the sequences and check if any of them exactly match one of the human ones
     for primate_seq in primate_gene.sequences:

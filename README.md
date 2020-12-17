@@ -18,11 +18,13 @@ Go to http://hgdownload.soe.ucsc.edu/admin/exe/ and download the binary for your
 
 UCSC Pynome can be used to download sequences and liftover coordinates. It contains three submodules: Genome, Sequence, and SequenceSet.
 
-The Genome class is used to get top level data. For example, it is possible to list all the genomes available in the UCSC database:
+The Genome class is used to get top level data. For example, it is possible to list all the genomes available in the UCSC database for a given organism:
 
 ```
-print(Genome.list_genomes())
+print(Genome.list_genomes("human"))
 ```
+
+This would output: ['hg16', 'hg17', 'hg18', 'hg19', 'hg38']
 
 It is also possible to download an entire genome or an entire chromosome from the browser. For example, the following code downloads the sequences of a list of mammals into a folder called "mammals", excluding chromosomes such as chrUn_XXX.
 
@@ -42,7 +44,7 @@ hg38_gene = SequenceSet(["gene.bed"], "hg38")
 primates = ["panTro6", "ponAbe3", "rheMac10"]
 
 for primate in primates:
-    primate_gene = SequenceSet.liftover(hg38_gene, primate)
+    primate_gene = SequenceSet.liftover(hg38_gene, Genome(primate))
     primate_gene.to_fasta("genes/" + primate + "_gene.fasta")
 
 hg38_gene.to_fasta("gene.fasta")
@@ -53,13 +55,15 @@ The SequenceSet class has the mutable field sequences, which is a list of Sequen
 Each Sequence object is specified by its coordinates. A sequence class lets you get and output the chromosome, start, end, and genome of a sequence, as well as the sequence string. For example:
 
 ```        
-newSeq = Sequence(1234567, 1234589, "hg38", "chr2")
-print("chromosome: " + newSeq.chromosome() + )
+newSeq = Sequence(1234567, 1234589, Genome("hg38"), "chr2")
+print("chromosome: " + newSeq.chromosome + " string: " + newSeq.string())
 ```
+
+Put together with a SequenceSet's sequences, this makes it easy to iterate over sequences to perform analyses on the strings.
 
 ## Examples
 
-See [`example-workspace/new_api/`](/example-workspace/new_api) for examples of how to use this API.
+See [`example-workspace/new_api/`](/example-workspace/new_api) for examples of how to use this API, including the ones shown as code snippets.
 
 
 
