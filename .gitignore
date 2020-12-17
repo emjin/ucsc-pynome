@@ -1,7 +1,8 @@
 *.sw*
 *.err
 __pycache__
-ucscpynome/liftover_files/*.chain
+ucscpynome/liftover_files/chain_files/*.chain
+ucscpynome/liftover_files/bed_files/*.bed
 *.gz
 *unmapped.bed
 ucscpynome/temp/*.bed
