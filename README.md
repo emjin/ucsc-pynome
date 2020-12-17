@@ -9,7 +9,7 @@
 ## Installation
  
 ### Mac OS Users
-If encounter a "liftOver can’t be opened because the identity of the developer cannot be confirmed", run the ['setup script'](/ucscpynome/setup.sh) before running any code.
+If you encounter a "liftOver can’t be opened because the identity of the developer cannot be confirmed", run the ['setup script'](/ucscpynome/setup.sh) before running any code.
 
 ### Other platforms
 Go to http://hgdownload.soe.ucsc.edu/admin/exe/ and download the binary for your running platform. Replace the liftOver executable in ucscpynome with the downloaded one and run `chmod +x liftOver`.
@@ -24,7 +24,7 @@ The Genome class is used to get top level data. For example, it is possible to l
 print(Genome.list_genomes())
 ```
 
-It is also possible to download an entire genome or an entire chromosome from the browser. For example, the following code downloads the sequences of a list of mammals, excluding chromosomes such as chrUn_XXX.
+It is also possible to download an entire genome or an entire chromosome from the browser. For example, the following code downloads the sequences of a list of mammals into a folder called "mammals", excluding chromosomes such as chrUn_XXX.
 
 ```
 mammals = ["bosTau9", "canFam4", "choHof1", "dasNov3", "dipOrd1", "echTel1"]
@@ -50,9 +50,12 @@ hg38_gene.to_fasta("gene.fasta")
 
 The SequenceSet class has the mutable field sequences, which is a list of Sequence objects.
 
-Each Sequence object is specified by its coordinates. 
-        
- newSeq = Sequence(, TEST_CHROM_END, TEST_GENOME, TEST_CHROM)
+Each Sequence object is specified by its coordinates. A sequence class lets you get and output the chromosome, start, end, and genome of a sequence, as well as the sequence string. For example:
+
+```        
+newSeq = Sequence(1234567, 1234589, "hg38", "chr2")
+print("chromosome: " + newSeq.chromosome() + )
+```
 
 ## Examples
 
