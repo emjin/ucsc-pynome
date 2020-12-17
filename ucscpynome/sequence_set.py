@@ -24,7 +24,7 @@ class SequenceSet():
         - perform liftover on a sequence set from one genome to another
 
     Attributes: (all are read-only)
-        genome (str): name of genome to which sequences belong
+        genome (Genome): genome object to which sequences belong
         sequences (list of Sequence): list of sequences in set
 
     Raises:
@@ -39,31 +39,46 @@ class SequenceSet():
     END_COL = 2
 
     def __init__(self, bed_file_names, genome):
+        """
+        Get an instance of a SequenceSet for a given genome.
+
+        Params: 
+            bed_file_names (List[string]): list of bed file names to be used to generate
+            this SequenceSet
+            genome (Genome): Genome object to which sequences belong
+        """
         if not isinstance(bed_file_names, list):
             raise TypeError("bed_file_names should be of type list")
 
-        self.genome = genome
+        self.genome = str(genome)
         self.sequences = list()
         for filename in bed_file_names:
             self.__parse_bed_file(filename)
 
     def __is_header_line(self, L):
-        """ Check if the given line is part of the header of a bed file
+        """ 
+            Check if the given line is part of the header of a bed file
 
-        :param L: line of bed file to check
-        :return: true if header starts with "browser", "track", or "#" as specified by Wikipedia
+            Params:
+                L (List[string]): line of bed file to check
+            
+            Returns:
+                bool : True if header starts with "browser", "track", or "#" as specified by Wikipedia
         """
         first_word = L[0]
         return first_word == "browser" or first_word == "track" or first_word == "#"
 
     def __parse_bed_file(self, bed_file_name):
-        """ Parse given bed file and place its sequences into set
+        """ 
+            Parse given bed file and place its sequences into set
 
-        Raises:
-            OSError: if file cannot be opened or read
-            MalformedBedFileError: if file does not have correct format
+            Params: 
+                bed_file_name (string): bed file to read sequence data from (chrom, start, end, label)
 
-        :param bed_file_name: file to read sequence data from (chromosome, start, end, label)
+            Raises:
+                OSError: if file cannot be opened or read
+                MalformedBedFileError: if file does not have correct format
+
         """
         curr_file_sequences = list()
         with open(bed_file_name) as f:
@@ -83,25 +98,27 @@ class SequenceSet():
                         # there is additional line data
                         additional_cols = L[self.MIN_NUM_COLS:]
                         label = " ".join(additional_cols)
-                        seq = Sequence(L[self.START_COL], L[self.END_COL], self.genome,
+                        seq = Sequence(L[self.START_COL], L[self.END_COL], str(self.genome),
                                             L[self.CHROM_COL], label)
                         curr_file_sequences.append(seq)
                     else:
                         seq = Sequence(L[self.START_COL], L[self.END_COL],
-                                            self.genome, L[self.CHROM_COL])
+                                            str(self.genome), L[self.CHROM_COL])
                         curr_file_sequences.append(seq)
         # successfully parsed bed file
         self.sequences.extend(curr_file_sequences)
     
     def to_bed(self, bed_file_name):
-        """Dump the sequence set data into a single bed file.
+        """
+            Dump the sequence set data into a single bed file.
 
-        WARNING: If bed_file_name already exists, this will overwite that file.
+            WARNING: If bed_file_name already exists, this will overwite that file.
 
-        Raises:
-            OSError: if bed_file_name cannot be opened with write permissions
+            Params:
+                bed_file_name (string) : name of the bed file to write to
+            Raises:
+                OSError: if bed_file_name cannot be opened with write permissions
 
-        :param bed_file_name: name of file to which to write sequence set
         """
         f = open(bed_file_name, "w")
         for sequence in self.sequences:
@@ -117,18 +134,21 @@ class SequenceSet():
         f.close()
 
     def to_fasta(self, fasta_file_name):
-        """Dump actual sequence strings from sequence set into a fasta file.
+        """
+            Dump actual sequence strings from sequence set into a fasta file.
 
-        WARNING: If fasta_file_name already exists, this will overwite that file.
+            WARNING: If fasta_file_name already exists, this will overwite that file.
 
-        The call to sequence.string() may cause a network request if the sequence
-        string has not been populated yet.
+            The call to sequence.string() may cause a network request if the sequence
+            string has not been populated yet.
 
-        Raises:
-            OSError: if fasta_file_name cannot be opened with write permissions
-            NetworkError: if cannot download sequence string
+            Params:
+                fasta_file_name (string): name of fasta file to write to
 
-        :param fasta_file_name: name of fasta file
+            Raises:
+                OSError: if fasta_file_name cannot be opened with write permissions
+                NetworkError: if cannot download sequence string
+
         """
         f = open(fasta_file_name, "w")
         for seq in self.sequences:

@@ -203,11 +203,14 @@ class Genome():
                 in the UCSC genome database
 
         """
+        # genome_dict and organism_dict is not yet populated
+        if len(Genome.__genome_dict) == 0:
+            Genome.__populate_dicts(Genome)
+
         if organism == None:
-            if len(Genome.__genome_dict) == 0:
-                Genome.__populate_dicts(Genome)
             return Genome.__genome_dict.keys()
         else:
+            # if organism is valid
             if organism.lower() in Genome.__organism_dict:
                 return Genome.__organism_dict[organism.lower()]
             else:

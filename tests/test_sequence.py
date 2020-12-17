@@ -3,9 +3,9 @@ from unittest import mock
 import sys
 sys.path.append("..")
 from ucscpynome import Requests
-from ucscpynome import Sequence
+from ucscpynome import Sequence, Genome
 
-TEST_GENOME = "hg38"
+TEST_GENOME = Genome("hg38")
 TEST_CHROM = "chrM"
 TEST_CHROM_START = 1234
 TEST_CHROM_END = 1250
