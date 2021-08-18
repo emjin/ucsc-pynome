@@ -4,6 +4,7 @@ on:
     branches:
     - main
     - master
+    - add_client_code_examples
 name: Semgrep
 jobs:
   semgrep:
